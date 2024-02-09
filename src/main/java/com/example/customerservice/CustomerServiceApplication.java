@@ -26,11 +26,11 @@ public class CustomerServiceApplication {
         return args -> {
             List<Customer> customers = List.of(
                     Customer.builder()
-                            .firstName("Mohamed").lastName("Youssfi").email("med@gmail.com").build(),
+                            .firstName("Gabriell").lastName("Cookman").email("gcookman0@usa.gov").build(),
                     Customer.builder()
-                            .firstName("Ahmed").lastName("Yassine").email("ahmed@gmail.com").build(),
+                            .firstName("Damita").lastName("Ende").email("dende1@businessweek.com").build(),
                     Customer.builder()
-                            .firstName("Hanane").lastName("yamal").email("hanane@gmail.com").build()
+                            .firstName("Reeva").lastName("Troctor").email("rtroctor2@marriott.com").build()
             );
             customerRepository.saveAll(customers);
         };

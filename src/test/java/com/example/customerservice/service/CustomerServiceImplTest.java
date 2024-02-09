@@ -5,7 +5,9 @@ import com.example.customerservice.entities.Customer;
 import com.example.customerservice.exceptions.CustomerNotFoundException;
 import com.example.customerservice.exceptions.EmailAlreadyExistException;
 import com.example.customerservice.mapper.CustomerMapper;
+import com.example.customerservice.mockdata.MockData;
 import com.example.customerservice.repository.CustomerRepository;
+import com.google.common.reflect.TypeToken;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +16,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,15 +32,17 @@ class CustomerServiceImplTest {
     @InjectMocks
     private CustomerServiceImpl underTest;
     @Test
-    void shouldSaveNewCustomer() {
-        CustomerDTO customerDTO= CustomerDTO.builder()
-                .firstName("Ismail").lastName("Matar").email("ismail@gmail.com").build();
-        Customer customer= Customer.builder()
-                .firstName("Ismail").lastName("Matar").email("ismail@gmail.com").build();
-        Customer savedCustomer= Customer.builder()
-                .id(1L).firstName("Ismail").lastName("Matar").email("ismail@gmail.com").build();
-        CustomerDTO expected= CustomerDTO.builder()
-                .id(1L).firstName("Ismail").lastName("Matar").email("ismail@gmail.com").build();
+    void shouldSaveNewCustomer() throws IOException {
+        CustomerDTO customerDTO=   MockData.getCustomerType(new TypeToken<ArrayList<CustomerDTO>>() {
+                }).get(0);/*MockData.getCustomersDto().get(0);/*CustomerDTO.builder()
+                .firstName("Ismail").lastName("Matar").email("ismail@gmail.com").build();*/
+        Customer customer=  MockData.getCustomerType(new TypeToken<ArrayList<Customer>>() {
+        }).get(0);/*MockData.getCustomers().get(0);/* Customer.builder()
+                .firstName("Ismail").lastName("Matar").email("ismail@gmail.com").build();*/
+        Customer savedCustomer= MockData.getCustomers().get(0);/*Customer.builder()
+                .id(1L).firstName("Ismail").lastName("Matar").email("ismail@gmail.com").build();*/
+        CustomerDTO expected= MockData.getCustomersDto().get(0);/*CustomerDTO.builder()
+                .id(1L).firstName("Ismail").lastName("Matar").email("ismail@gmail.com").build();*/
         Mockito.when(customerRepository.findByEmail(customerDTO.getEmail())).thenReturn(Optional.empty());
         Mockito.when(customerMapper.fromCustomerDTO(customerDTO)).thenReturn(customer);
         Mockito.when(customerRepository.save(customer)).thenReturn(savedCustomer);
@@ -47,26 +53,26 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    void shouldNotSaveNewCustomerWhenEmailExist() {
-        CustomerDTO customerDTO= CustomerDTO.builder()
-                .firstName("Ismail").lastName("Matar").email("xxxxx@gmail.com").build();
-        Customer customer= Customer.builder()
-                .id(5L).firstName("Ismail").lastName("Matar").email("xxxxx@gmail.com").build();
+    void shouldNotSaveNewCustomerWhenEmailExist() throws IOException {
+        CustomerDTO customerDTO= MockData.getCustomersDto().get(0);/*CustomerDTO.builder()
+                .firstName("Ismail").lastName("Matar").email("xxxxx@gmail.com").build();*/
+        Customer customer= MockData.getCustomers().get(0);/*Customer.builder()
+                .id(5L).firstName("Ismail").lastName("Matar").email("xxxxx@gmail.com").build();*/
         Mockito.when(customerRepository.findByEmail(customerDTO.getEmail())).thenReturn(Optional.of(customer));
         AssertionsForClassTypes.assertThatThrownBy(()->underTest.saveNewCustomer(customerDTO))
                         .isInstanceOf(EmailAlreadyExistException.class);
     }
 
     @Test
-    void shouldGetAllCustomers() {
-        List<Customer> customers = List.of(
+    void shouldGetAllCustomers() throws IOException {
+        List<Customer> customers = MockData.getCustomers();/*List.of(
                 Customer.builder().firstName("Mohamed").lastName("Youssfi").email("med@gmail.com").build(),
                 Customer.builder().firstName("Ahmed").lastName("Yassine").email("ahmed@gmail.com").build()
-        );
-        List<CustomerDTO> expected = List.of(
+        );*/
+        List<CustomerDTO> expected = MockData.getCustomersDto();/*List.of(
                 CustomerDTO.builder().firstName("Mohamed").lastName("Youssfi").email("med@gmail.com").build(),
                 CustomerDTO.builder().firstName("Ahmed").lastName("Yassine").email("ahmed@gmail.com").build()
-        );
+        );*/
         Mockito.when(customerRepository.findAll()).thenReturn(customers);
         Mockito.when(customerMapper.fromListCustomers(customers)).thenReturn(expected);
         List<CustomerDTO> result = underTest.getAllCustomers();
@@ -74,10 +80,10 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    void shouldFindCustomerById() {
+    void shouldFindCustomerById() throws IOException {
         Long customerId = 1L;
-        Customer customer=Customer.builder().id(1L).firstName("Mohamed").lastName("Youssfi").email("med@gmail.com").build();
-        CustomerDTO expected=CustomerDTO.builder().id(1L).firstName("Mohamed").lastName("Youssfi").email("med@gmail.com").build();
+        Customer customer= MockData.getCustomers().get(0);//Customer.builder().id(1L).firstName("Mohamed").lastName("Youssfi").email("med@gmail.com").build();
+        CustomerDTO expected= MockData.getCustomersDto().get(0); //CustomerDTO.builder().id(1L).firstName("Mohamed").lastName("Youssfi").email("med@gmail.com").build();
         Mockito.when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
         Mockito.when(customerMapper.fromCustomer(customer)).thenReturn(expected);
         CustomerDTO result = underTest.findCustomerById(customerId);
@@ -93,16 +99,16 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    void shouldSearchCustomers() {
+    void shouldSearchCustomers() throws IOException {
         String keyword="m";
-        List<Customer> customers = List.of(
+        List<Customer> customers = MockData.getCustomers(); /*List.of(
                 Customer.builder().firstName("Mohamed").lastName("Youssfi").email("med@gmail.com").build(),
                 Customer.builder().firstName("Ahmed").lastName("Yassine").email("ahmed@gmail.com").build()
-        );
-        List<CustomerDTO> expected = List.of(
+        );*/
+        List<CustomerDTO> expected = MockData.getCustomersDto();/*List.of(
                 CustomerDTO.builder().firstName("Mohamed").lastName("Youssfi").email("med@gmail.com").build(),
                 CustomerDTO.builder().firstName("Ahmed").lastName("Yassine").email("ahmed@gmail.com").build()
-        );
+        );*/
         Mockito.when(customerRepository.findByFirstNameContainingIgnoreCase(keyword)).thenReturn(customers);
         Mockito.when(customerMapper.fromListCustomers(customers)).thenReturn(expected);
         List<CustomerDTO> result = underTest.searchCustomers(keyword);
@@ -110,16 +116,16 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    void updateCustomer() {
-        Long customerId= 6L;
-        CustomerDTO customerDTO= CustomerDTO.builder()
-                .id(6L).firstName("Ismail").lastName("Matar").email("ismail@gmail.com").build();
-        Customer customer= Customer.builder()
-                .id(6L).firstName("Ismail").lastName("Matar").email("ismail@gmail.com").build();
-        Customer updatedCustomer= Customer.builder()
-                .id(6L).firstName("Ismail").lastName("Matar").email("ismail@gmail.com").build();
-        CustomerDTO expected= CustomerDTO.builder()
-                .id(6L).firstName("Ismail").lastName("Matar").email("ismail@gmail.com").build();
+    void updateCustomer() throws IOException {
+        Long customerId= 1L;
+        CustomerDTO customerDTO= MockData.getCustomersDto().get(0);/*CustomerDTO.builder()
+                .id(6L).firstName("Ismail").lastName("Matar").email("ismail@gmail.com").build();*/
+        Customer customer=MockData.getCustomers().get(0);/*Customer.builder()
+                .id(6L).firstName("Ismail").lastName("Matar").email("ismail@gmail.com").build();*/
+        Customer updatedCustomer= MockData.getCustomers().get(0);/*Customer.builder()
+                .id(6L).firstName("Ismail").lastName("Matar").email("ismail@gmail.com").build();*/
+        CustomerDTO expected= MockData.getCustomersDto().get(0);/*CustomerDTO.builder()
+                .id(6L).firstName("Ismail").lastName("Matar").email("ismail@gmail.com").build();*/
         Mockito.when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
         Mockito.when(customerMapper.fromCustomerDTO(customerDTO)).thenReturn(customer);
         Mockito.when(customerRepository.save(customer)).thenReturn(updatedCustomer);
@@ -130,10 +136,10 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    void shouldDeleteCustomer() {
+    void shouldDeleteCustomer() throws IOException {
         Long customerId =1L;
-        Customer customer= Customer.builder()
-                .id(6L).firstName("Ismail").lastName("Matar").email("ismail@gmail.com").build();
+        Customer customer= MockData.getCustomers().get(0);/*Customer.builder()
+                .id(6L).firstName("Ismail").lastName("Matar").email("ismail@gmail.com").build();*/
         Mockito.when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
         underTest.deleteCustomer(customerId);
         Mockito.verify(customerRepository).deleteById(customerId);

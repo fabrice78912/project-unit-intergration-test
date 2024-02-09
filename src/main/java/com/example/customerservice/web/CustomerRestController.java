@@ -16,6 +16,7 @@ public class CustomerRestController {
     public CustomerRestController(CustomerService customerService) {
         this.customerService = customerService;
     }
+
     @GetMapping("/customers")
     public List<CustomerDTO> getAllCustomers(){
         return customerService.getAllCustomers();

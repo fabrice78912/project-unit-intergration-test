@@ -1,7 +1,9 @@
 package com.example.customerservice.web;
 import com.example.customerservice.dto.CustomerDTO;
+import com.example.customerservice.mockdata.MockData;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.reflect.TypeToken;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +19,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,14 +39,15 @@ class CustomerIntegrationTest {
     List<CustomerDTO> customers;
 
     @BeforeEach
-    void setUp() {
-        this.customers = new ArrayList<>();
+    void setUp() throws IOException {
+        this.customers = MockData.getCustomerType(new TypeToken<ArrayList<CustomerDTO>>() {
+        });/*new ArrayList<>();
                 this.customers.add(CustomerDTO.builder()
                         .id(1L).firstName("Mohamed").lastName("Youssfi").email("med@gmail.com").build());
         this.customers.add(CustomerDTO.builder()
                         .id(2L).firstName("Ahmed").lastName("Yassine").email("ahmed@gmail.com").build());
         this.customers.add(CustomerDTO.builder()
-                        .id(3L).firstName("Hanane").lastName("yamal").email("hanane@gmail.com").build());
+                        .id(3L).firstName("Hanane").lastName("yamal").email("hanane@gmail.com").build());*/
     }
 
     @Test
@@ -60,7 +64,7 @@ class CustomerIntegrationTest {
         ResponseEntity<CustomerDTO[]> response = testRestTemplate.exchange("/api/customers/search?keyword="+keyword, HttpMethod.GET, null, CustomerDTO[].class);
         List<CustomerDTO> content = Arrays.asList(response.getBody());
         AssertionsForClassTypes.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        AssertionsForClassTypes.assertThat(content.size()).isEqualTo(2);
+        AssertionsForClassTypes.assertThat(content.size()).isEqualTo(1);  //compare le nombre de customer de la bd dont le firstname contient la lettre m a celui du costomer du fichier json;
         List<CustomerDTO> expected = customers.stream().filter(c -> c.getFirstName().toLowerCase().contains(keyword.toLowerCase())).collect(Collectors.toList());
         AssertionsForClassTypes.assertThat(content).usingRecursiveComparison().isEqualTo(expected);
     }
